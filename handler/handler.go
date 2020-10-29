@@ -10,6 +10,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/webserver/types"
+	"github.com/webserver/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -36,7 +37,11 @@ func SignUp(DB *sql.DB) http.HandlerFunc {
 		}
 
 		defer DB.Close()
-		json.NewEncoder(w).Encode(u)
+		token, err := utils.CreateToken(u.Email)
+		if err != nil {
+			json.NewEncoder(w).Encode(err)
+		}
+		json.NewEncoder(w).Encode(token)
 
 	}
 }
@@ -45,7 +50,6 @@ func Login(DB *sql.DB) http.HandlerFunc {
 		reqBody, _ := ioutil.ReadAll(r.Body)
 		var u types.UserData
 		json.Unmarshal(reqBody, &u)
-		// db, err := sql.Open("mysql", "root:root1234@tcp(127.0.0.1:3306)/webserver")
 		query, err := DB.Query("SELECT * FROM user WHERE email = ?", u.Email)
 		if err != nil {
 			panic(err.Error())
@@ -57,13 +61,15 @@ func Login(DB *sql.DB) http.HandlerFunc {
 			if err != nil {
 				panic(err.Error())
 			}
-
 			err := bcrypt.CompareHashAndPassword([]byte(data.Pswd), []byte(u.Pswd))
 			if err != nil {
-				// panic(err.Error())
 				json.NewEncoder(w).Encode(false)
 			} else {
-				json.NewEncoder(w).Encode(true)
+				token, err := utils.CreateToken(u.Email)
+				if err != nil {
+					json.NewEncoder(w).Encode(err)
+				}
+				json.NewEncoder(w).Encode(token)
 			}
 		}
 	}
