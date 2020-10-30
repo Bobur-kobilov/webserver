@@ -20,6 +20,7 @@ func SignUp(DB *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		reqBody, _ := ioutil.ReadAll(r.Body)
 		var u types.UserData
+		// var tokenJson types.Token
 		json.Unmarshal(reqBody, &u)
 		bytes, err := bcrypt.GenerateFromPassword([]byte(u.Pswd), 14)
 		if err != nil {
@@ -36,11 +37,15 @@ func SignUp(DB *sql.DB) http.HandlerFunc {
 			fmt.Println("1 row inserted.")
 		}
 
-		defer DB.Close()
 		token, err := utils.CreateToken(u.Email)
 		if err != nil {
 			json.NewEncoder(w).Encode(err)
 		}
+		// fmt.Println(token)
+		// json.Unmarshal([]byte("token"), &tokenJson)
+		// if errJson != nil {
+		// 	panic(errJson.Error())
+		// }
 		json.NewEncoder(w).Encode(token)
 
 	}
@@ -83,13 +88,13 @@ func RegisterData(DB *sql.DB) http.HandlerFunc {
 		insert, err := DB.Exec("INSERT INTO data VALUES (?,?,?,?,?)", data.Name, data.Description, data.Code, data.ProducedAt, time.Now())
 
 		if err != nil {
+			json.NewEncoder(w).Encode(err)
 			panic(err.Error())
 		}
 		n, err := insert.RowsAffected()
 		if n == 1 {
 			fmt.Println("Data saved successfully")
 		}
-		defer DB.Close()
 		json.NewEncoder(w).Encode(data)
 	}
 }
@@ -117,8 +122,6 @@ func QueryData(DB *sql.DB) http.HandlerFunc {
 			}
 			arrData = append(arrData, data)
 		}
-		defer DB.Close()
 		json.NewEncoder(w).Encode(arrData)
-
 	}
 }

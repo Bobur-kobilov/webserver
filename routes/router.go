@@ -8,10 +8,12 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/webserver/handler"
+	"github.com/webserver/middleware"
 )
 
 func Router(DB *sql.DB) {
 	router := mux.NewRouter().StrictSlash(true)
+	router.Use(middleware.LoggingMiddleware)
 
 	router.HandleFunc("/signup", handler.SignUp(DB)).Methods("POST")
 	router.HandleFunc("/login", handler.Login(DB)).Methods("POST")
