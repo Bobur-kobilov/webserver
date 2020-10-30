@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"fmt"
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -21,9 +21,12 @@ func CheckToken(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token, err := utils.CheckToken(r)
 		if err != nil {
-			panic(err.Error())
+			json.NewEncoder(w).Encode(err)
 		}
-		fmt.Println(token)
-		next.ServeHTTP(w, r)
+		if !token {
+			http.Error(w, "StatusUnauthorized", http.StatusUnauthorized)
+		} else {
+			next.ServeHTTP(w, r)
+		}
 	})
 }

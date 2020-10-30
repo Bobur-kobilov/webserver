@@ -14,11 +14,14 @@ import (
 func Router(DB *sql.DB) {
 	router := mux.NewRouter().StrictSlash(true)
 	router.Use(middleware.LoggingMiddleware)
+	router.Use(mux.CORSMethodMiddleware(router))
 
 	router.HandleFunc("/signup", handler.SignUp(DB)).Methods("POST")
 	router.HandleFunc("/login", handler.Login(DB)).Methods("POST")
-	router.HandleFunc("/data", handler.RegisterData(DB)).Methods("POST")
-	router.HandleFunc("/data", handler.QueryData(DB))
+
+	// router.Use(middleware.CheckToken)
+	router.Handle("/data", middleware.CheckToken(handler.RegisterData(DB))).Methods("POST")
+	router.Handle("/data", middleware.CheckToken(handler.QueryData(DB)))
 
 	log.Fatal(http.ListenAndServe(":10000", router))
 }
