@@ -56,7 +56,7 @@ func Login(DB *sql.DB) http.HandlerFunc {
 
 		for query.Next() {
 			var data types.UserData
-			err = query.Scan(&data.Email, &data.Pswd)
+			err = query.Scan(&data.Email, &data.Pswd, &data.FirstName, &data.LastName, &data.OrgName, &data.Inst, &data.BuildNo, &data.FloorNo, &data.LabHead, &data.LabAddress, &data.Tel)
 			if err != nil {
 				panic(err.Error())
 			}
@@ -94,7 +94,15 @@ func RegisterData(DB *sql.DB) http.HandlerFunc {
 }
 func QueryData(DB *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		query, err := DB.Query("SELECT * FROM data")
+		reqParams, _ := r.URL.Query()["code"]
+		var queryCommand string
+		if len(reqParams) > 0 {
+			queryCommand = fmt.Sprintf("SELECT * FROM data where code = %s", string(reqParams[0]))
+			fmt.Println(queryCommand)
+		} else {
+			queryCommand = "SELECT * FROM data"
+		}
+		query, err := DB.Query(queryCommand)
 		if err != nil {
 			panic(err.Error())
 		}

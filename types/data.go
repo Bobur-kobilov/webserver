@@ -7,3 +7,7 @@ type Data struct {
 	ProducedAt  string `json:"ProducedAt"`
 	CreatedAt   string `json:"CreatedAt"`
 }
+
+type ParamData struct {
+	Code string `json:"Code"`
+}
