@@ -20,14 +20,13 @@ func SignUp(DB *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		reqBody, _ := ioutil.ReadAll(r.Body)
 		var u types.UserData
-		// var tokenJson types.Token
 		json.Unmarshal(reqBody, &u)
 		bytes, err := bcrypt.GenerateFromPassword([]byte(u.Pswd), 14)
 		if err != nil {
 			fmt.Println("Error Occured")
 			return
 		}
-		insert, err := DB.Exec("INSERT INTO user VALUES (?,?)", u.Email, string(bytes))
+		insert, err := DB.Exec("INSERT INTO user VALUES (?,?,?,?,?,?,?,?,?,?,?)", u.Email, string(bytes), u.FirstName, u.LastName, u.OrgName, u.Inst, u.BuildNo, u.FloorNo, u.LabHead, u.LabAddress, u.Tel)
 
 		if err != nil {
 			panic(err.Error())
@@ -41,11 +40,6 @@ func SignUp(DB *sql.DB) http.HandlerFunc {
 		if err != nil {
 			json.NewEncoder(w).Encode(err)
 		}
-		// fmt.Println(token)
-		// json.Unmarshal([]byte("token"), &tokenJson)
-		// if errJson != nil {
-		// 	panic(errJson.Error())
-		// }
 		json.NewEncoder(w).Encode(token)
 
 	}
@@ -100,15 +94,6 @@ func RegisterData(DB *sql.DB) http.HandlerFunc {
 }
 func QueryData(DB *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// err := godotenv.Load()
-		// appConfig, err := godotenv.Read()
-		// if err != nil {
-		// 	log.Fatal("Error loading .env file")
-		// }
-		// fmt.Println(appConfig["MYSQL_USER"])
-
-		// db, err := sql.Open("mysql", "root:root1234@tcp(127.0.0.1:3306)/webserver")
-		// db := persistence.InitDB()
 		query, err := DB.Query("SELECT * FROM data")
 		if err != nil {
 			panic(err.Error())

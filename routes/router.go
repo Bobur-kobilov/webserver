@@ -19,7 +19,6 @@ func Router(DB *sql.DB) {
 	router.HandleFunc("/signup", handler.SignUp(DB)).Methods("POST")
 	router.HandleFunc("/login", handler.Login(DB)).Methods("POST")
 
-	// router.Use(middleware.CheckToken)
 	router.Handle("/data", middleware.CheckToken(handler.RegisterData(DB))).Methods("POST")
 	router.Handle("/data", middleware.CheckToken(handler.QueryData(DB)))
 
