@@ -8,16 +8,19 @@ import (
 	"net/http"
 	"time"
 
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/webserver/types"
 	"github.com/webserver/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 
-var UserDat []types.UserData
+var userDat []types.UserData
 
+// SignUp : user onboardings
 func SignUp(DB *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 		reqBody, _ := ioutil.ReadAll(r.Body)
 		var u types.UserData
 		json.Unmarshal(reqBody, &u)
@@ -44,6 +47,8 @@ func SignUp(DB *sql.DB) http.HandlerFunc {
 
 	}
 }
+
+// Login : User login function
 func Login(DB *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		reqBody, _ := ioutil.ReadAll(r.Body)
@@ -73,13 +78,15 @@ func Login(DB *sql.DB) http.HandlerFunc {
 		}
 	}
 }
+
+// RegisterData : used for data registering
 func RegisterData(DB *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		reqBody, _ := ioutil.ReadAll(r.Body)
 		var data types.Data
 		json.Unmarshal(reqBody, &data)
 		fmt.Println(data.Description)
-		insert, err := DB.Exec("INSERT INTO data VALUES (?,?,?,?,?)", data.Name, data.Description, data.Code, data.ProducedAt, time.Now())
+		insert, err := DB.Exec("INSERT INTO data VALUES (?,?,?,?,?)", data.Name, data.Description, data.Code, time.Now(), time.Now())
 
 		if err != nil {
 			json.NewEncoder(w).Encode(err)
@@ -92,17 +99,32 @@ func RegisterData(DB *sql.DB) http.HandlerFunc {
 		json.NewEncoder(w).Encode(data)
 	}
 }
+
+// QueryData : Data retrieving function
 func QueryData(DB *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		reqParams, _ := r.URL.Query()["code"]
-		var queryCommand string
-		if len(reqParams) > 0 {
-			queryCommand = fmt.Sprintf("SELECT * FROM data where code = %s", string(reqParams[0]))
-			fmt.Println(queryCommand)
-		} else {
-			queryCommand = "SELECT * FROM data"
+		query, err := DB.Query("SELECT * FROM data")
+		if err != nil {
+			panic(err.Error())
 		}
-		query, err := DB.Query(queryCommand)
+		var arrData []types.Data
+		for query.Next() {
+			var data types.Data
+			err = query.Scan(&data.Name, &data.Description, &data.Code, &data.ProducedAt, &data.CreatedAt)
+			if err != nil {
+				panic(err.Error())
+			}
+			arrData = append(arrData, data)
+		}
+		json.NewEncoder(w).Encode(arrData)
+	}
+}
+
+// QueryDataByCode : Data retrieving function by code
+func QueryDataByCode(DB *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		reqParams, _ := r.URL.Query()["code"]
+		query, err := DB.Query("SELECT * FROM data where code = ?", reqParams[0])
 		if err != nil {
 			panic(err.Error())
 		}

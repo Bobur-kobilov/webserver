@@ -12,7 +12,7 @@ type Env struct {
 }
 
 func InitDB() *sql.DB {
-	db, err := sql.Open("mysql", "root:root1234@tcp(127.0.0.1:3306)/webserver")
+	db, err := sql.Open("mysql", "root:root1234@tcp(webserver_db_1)/webserver")
 
 	if err != nil {
 		log.Fatal(err)

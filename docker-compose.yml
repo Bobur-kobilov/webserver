@@ -1,0 +1,22 @@
+version: '3.1'
+services:
+  webserver:
+    build:
+      context: .
+    command: /dist/./main
+    ports: 
+      - 10000:10000
+    depends_on:
+      - db
+  db:
+    volumes:
+      - ./persistence:/docker-entrypoint-initdb.d
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root1234
+      MYSQL_DATABASE: webserver
+      MYSQL_USER: root
+    ports:
+      - "3306:3306"
+    
