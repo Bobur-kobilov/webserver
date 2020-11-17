@@ -2,8 +2,8 @@
 A simple Webserver written in golang
 
 ### Prerequisites
-* [Golang]() -> 1.15.1
-* [Docker]() -> 19.03.12
+* [Golang](https://golang.org/) -> 1.15.1
+* [Docker](https://www.docker.com/) -> 19.03.12
 
 
 ### 실행
