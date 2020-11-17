@@ -16,22 +16,21 @@ A simple Webserver written in golang
 
 ### Directory Structure
 ```
-├── Dockerfile
-├── build.sh
-├── docker-compose.yml
-├── go.mod
-├── go.sum
-├── handler
-│   └── handler.go
-├── main
-├── main.go
+├── Dockerfile            ## docker image build할떄
+├── build.sh              ## 서버 실행 파일
+├── docker-compose.yml    ## docker image 실행할떄
+├── go.mod                ## go module 목록
+├── go.sum                ## go module checksum
+├── handler         
+│   └── handler.go        ## handler 함수들
+├── main.go               ## 서버 메인 파일
 ├── middleware
-│   └── tokenAuth.go
+│   └── tokenAuth.go      ## JWT token exp 검증할때
 ├── persistence
-│   ├── db.sql
-│   └── initDB.go
+│   ├── db.sql      
+│   └── initDB.go         ## DB initialize 
 ├── routes
-│   └── router.go
+│   └── router.go         ## API router
 ├── types
 │   ├── data.go
 │   └── user.go
