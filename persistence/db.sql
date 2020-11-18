@@ -1,3 +1,6 @@
+/**
+User table
+**/
 CREATE TABLE user
 (
   email varchar(128) UNIQUE,
@@ -14,7 +17,9 @@ CREATE TABLE user
 );
 
 
-
+/**
+Data table
+**/
 CREATE TABLE data
 (
   name varchar(128) NOT NULL,
